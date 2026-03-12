@@ -1,0 +1,127 @@
+:root {
+  color-scheme: dark;
+  --bg-solid: #1e1e1e;
+  --bg-base: rgba(30, 30, 30, 0.3);
+  --bg-surface: rgba(45, 45, 45, 0.7);
+  --bg-hover: rgba(61, 61, 61, 0.6);
+  --bg-menu: rgba(35, 35, 35, 0.95); 
+  --border-color: rgba(100, 100, 100, 0.3);
+  --text-main: #ffffff;
+  --text-muted: #d0d0d0;
+  --accent: #0060df;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-solid: #f3f3f3;
+  --bg-base: rgba(243, 243, 243, 0.3);
+  --bg-surface: rgba(255, 255, 255, 0.7);
+  --bg-hover: rgba(229, 229, 229, 0.6);
+  --bg-menu: rgba(245, 245, 245, 0.95); 
+  --border-color: rgba(150, 150, 150, 0.3);
+  --text-main: #000000;
+  --text-muted: #333333;
+  --accent: #0060df;
+}
+
+html, body {
+  background-color: var(--bg-solid) !important;
+}
+
+body {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  overflow: hidden; 
+}
+
+/* --- Interactive Feedback & Blur --- */
+button, .tile, .list-row, .nav-item, .tab {
+  transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s ease, opacity 0.2s ease !important;
+}
+
+button:not(.window-btn):active, .tile:active, .nav-item:active, .tab:active {
+  transform: scale(0.96);
+}
+
+.list-row:active {
+  transform: scale(0.995);
+}
+
+/* fade and scale-in for floating UI */
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.92); }
+  60% { transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* CSS acrylic blur and animations on floating elements */
+.context-menu, .submenu, .modal-content, .create-modal {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  /* Spring-based easing & Hardware Acceleration */
+  animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  will-change: transform, opacity;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* context menu scales out from the cursor */
+.context-menu, .submenu {
+  transform-origin: top left;
+}
+
+button, a, select, [role="button"], input[type="range"], input[type="checkbox"] {
+  cursor: default;
+}
+
+/* Sleek Scrollbars */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 10px;
+  border: 5px solid transparent; 
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover, 
+:hover::-webkit-scrollbar-thumb {
+  background-color: var(--text-muted);
+  border: 3px solid transparent; 
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* --- Global Modal Styles --- */
+dialog {
+  margin: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  color: inherit;
+  outline: none;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  color: var(--text-main);
+}
