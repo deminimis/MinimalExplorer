@@ -37,6 +37,7 @@
   let wheelCooldown = false;
   let containerRef: HTMLElement;
   let observer: IntersectionObserver;
+  let pendingObserverNodes: HTMLElement[] = [];
 
   onMount(() => {
     observer = new IntersectionObserver((entries) => {
@@ -45,18 +46,24 @@
         
         if (entry.isIntersecting) {
           if (wrapper.dataset.src) {
-            const img = wrapper.querySelector('img.gallery-img') as HTMLImageElement;
+            const img = (wrapper.tagName === 'IMG' ? wrapper : wrapper.querySelector('img')) as HTMLImageElement;
             if (img) img.src = wrapper.dataset.src;
+  
             observer.unobserve(wrapper);
           }
         }
       }
     }, { root: containerRef, rootMargin: '200px' });
 
+    for (const node of pendingObserverNodes) {
+      if (node.dataset.src) observer.observe(node);
+    }
+    pendingObserverNodes = [];
+
     containerRef.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      observer.disconnect();
-      containerRef.removeEventListener('wheel', handleWheel);
+      if (observer) observer.disconnect();
+      if (containerRef) containerRef.removeEventListener('wheel', handleWheel);
       if (scrollFrameId !== null) cancelAnimationFrame(scrollFrameId);
       clearTimeout(typeTimeout);
     };
@@ -111,27 +118,29 @@
   }
 
   function lazyLoad(node: HTMLElement, src: string | null) {
-    if (!src) return { update() {}, destroy() {} };
-    node.dataset.src = src;
-    observer.observe(node);
+    if (src) {
+      node.dataset.src = src;
+      if (observer) observer.observe(node);
+      else pendingObserverNodes.push(node);
+    }
     return {
       update(newSrc: string | null) {
         if (!newSrc) {
-          observer.unobserve(node);
+          if (observer) observer.unobserve(node);
           delete node.dataset.src;
           return;
         }
         if (node.dataset.src === newSrc) return;
         node.dataset.src = newSrc;
-        const img = node.querySelector('img.gallery-img') as HTMLImageElement;
+        const img = (node.tagName === 'IMG' ? node : node.querySelector('img')) as HTMLImageElement;
         if (img) {
           img.removeAttribute('src');
           img.classList.remove('loaded');
         }
-        observer.observe(node);
+        if (observer) observer.observe(node);
       },
       destroy() { 
-        observer.unobserve(node);
+        if (observer) observer.unobserve(node);
       }
     };
   }
@@ -150,18 +159,6 @@
   let paddingBottom = $derived(Math.max(0, (Math.ceil(displayFiles.length / columns) - endRow) * itemHeight));
 
   let visibleFiles = $derived(displayFiles.slice(startIndex, endIndex));
-
-  $effect(() => {
-    if (settings.enableThumbnails && visibleFiles.length > 0) {
-      const pathsToCache = visibleFiles
-        .filter(f => !f.is_dir && isImage(f.name))
-        .map(f => f.path);
-      
-      if (pathsToCache.length > 0) {
-        invoke('precache_thumbnails', { paths: pathsToCache }).catch(console.error);
-      }
-    }
-  });
 
   function updateSelection(newSelection: FileItem[]) {
     if (isSecondary) explorer.secondarySelectedFiles = newSelection;
@@ -618,7 +615,7 @@
         {#if showThumb}
           <img src={convertFileSrc(firstFile.path, 'thumbnail')} alt="thumb" class="ghost-img" />
         {:else}
-          <img src={getSystemIconSrc(firstFile.name, firstFile.is_dir)} alt="icon" class="ghost-img" />
+          <img src={getSystemIconSrc(firstFile.path, firstFile.is_dir)} alt="icon" class="ghost-img" />
         {/if}
       </div>
       <span class="ghost-count">{selectedFiles.length} item{selectedFiles.length !== 1 ? 's' : ''}</span>

@@ -112,8 +112,17 @@ pub fn handle_thumbnail_request(ctx: tauri::UriSchemeContext<'_, tauri::Wry>,
     use tauri::Manager;
     let app_handle = ctx.app_handle();
     let uri = request.uri().to_string();
-    let path_str = uri.strip_prefix("thumbnail://localhost/").unwrap_or(&uri);
-    let decoded_path = urlencoding::decode(path_str).unwrap_or_default().into_owned();
+    let path_str = uri
+        .strip_prefix("thumbnail://localhost/")
+        .or_else(|| uri.strip_prefix("http://thumbnail.localhost/"))
+        .or_else(|| uri.strip_prefix("https://thumbnail.localhost/"))
+        .unwrap_or(&uri);
+    
+    let mut decoded_path = urlencoding::decode(path_str).unwrap_or_default().into_owned();
+    #[cfg(target_os = "windows")]
+    if decoded_path.starts_with('/') {
+        decoded_path = decoded_path[1..].to_string();
+    }
 
     let cache_state = app_handle.state::<ThumbnailCache>();
     
@@ -266,12 +275,21 @@ pub fn handle_icon_request(ctx: tauri::UriSchemeContext<'_, tauri::Wry>,
     use tauri::Manager;
     let app_handle = ctx.app_handle();
     let uri = request.uri().to_string();
-    let path_and_query = uri.strip_prefix("icon://localhost/").unwrap_or(&uri);
+    let path_and_query = uri
+        .strip_prefix("icon://localhost/")
+        .or_else(|| uri.strip_prefix("http://icon.localhost/"))
+        .or_else(|| uri.strip_prefix("https://icon.localhost/"))
+        .unwrap_or(&uri);
     
     let mut parts = path_and_query.split('?');
-    let path_str = parts.next().unwrap_or("").trim_start_matches('/');
+    let path_str = parts.next().unwrap_or("");
+    
+    let mut decoded_path = urlencoding::decode(path_str).unwrap_or_default().into_owned();
+    #[cfg(target_os = "windows")]
+    if decoded_path.starts_with('/') {
+        decoded_path = decoded_path[1..].to_string();
+    }
     let is_dir = parts.next().unwrap_or("").contains("is_dir=true");
-    let decoded_path = urlencoding::decode(path_str).unwrap_or_default().into_owned();
 
     let cache_key = format!("{}_{}", decoded_path, is_dir);
     let state = app_handle.state::<IconCache>();

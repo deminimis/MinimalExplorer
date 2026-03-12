@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "minimal-explorer",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "identifier": "com.minimalexplorer.dev",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -11,10 +11,10 @@
   },
   "plugins": {
     "updater": {
-      "endpoints": [
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk0NEZBOTBDNzFFODAyQTYKUldTbUF1aHhES2xQbEwzNlU5S00xWkFWV0xSU3ZhWkVJRmhobVdEUUc2Ky96NzJ3RnFQVmIraXIK",
+      "endpoints": [  
         "https://github.com/deminimis/MinimalExplorer/releases/latest/download/latest.json"
-      ],
-      "pubkey": "deminimis"
+      ]
     }
   },
   "app": {
@@ -37,10 +37,12 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["msi", "nsis"],
+    "createUpdaterArtifacts": true,
     "windows": {
       "nsis": {
-        "installerHooks": "hooks.nsi"
+        "installerHooks": "hooks.nsi",
+        "installerIcon": "icons/icon.ico"
       }
     },
     "icon": [

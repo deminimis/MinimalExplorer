@@ -206,7 +206,7 @@
 
           {#each explorer.searchResults as file}
             <div class="result-item" role="button" tabindex="0" onclick={() => handleResultClick(file)} onkeydown={(e) => e.key === 'Enter' && handleResultClick(file)}>
-              <span class="icon" style="width: 24px; height: 24px; display: flex;"><img src={getSystemIconSrc(file.name, file.is_dir)} alt="" style="width: 100%; height: 100%; object-fit: contain;" /></span>
+              <span class="icon" style="width: 24px; height: 24px; display: flex;"><img src={getSystemIconSrc(file.path, file.is_dir)} alt="" style="width: 100%; height: 100%; object-fit: contain;" /></span>
               <div class="details">
                 <span class="name">{file.name}</span>
                 {#if file.snippet}

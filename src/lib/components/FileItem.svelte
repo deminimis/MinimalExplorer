@@ -99,9 +99,7 @@
           onload={(e: Event) => (e.currentTarget as HTMLImageElement).classList.add('loaded')}
           onerror={(e: Event) => {
             const target = e.currentTarget as HTMLImageElement;
-            if (target.src.includes('thumbnail')) {
-              target.src = convertFileSrc(file.path);
-            } else if (!target.src.includes('icon.localhost')) {
+            if (!target.src.includes('icon.localhost')) {
               target.src = getSystemIconSrc(file.path, file.is_dir);
             } else {
               target.style.display = 'none';
@@ -217,7 +215,7 @@
     transition: opacity 0.1s ease;
   }
   
-  .gallery-img.loaded {
+  .gallery-img:global(.loaded) {
     opacity: 1;
   }
   :global([data-theme="light"]) .gallery-img {

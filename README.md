@@ -1,50 +1,51 @@
 # Minimal Explorer
 
-Minimal Explorer is a fast, highly performant, and minimalist Windows Explorer replacement built for Windows 11. Engineered with a lightweight Rust backend, it prioritizes speed, keyboard-centric workflows, and a sleek aesthetic. 
+Minimal Explorer is a fast, highly performant Windows Explorer replacement built for Windows 11. Engineered with a lightweight Rust backend, it prioritizes speed and keyboard-centric workflows. 
 
-Because Windows Explorer is so integrated into Windows 10/11, it is not practically possible to completely replace it with this file explorer. But with a little manual labor, this file explorer could easily be converted for Linux (mostly just removed Windows API). 
+Because Windows Explorer is deeply integrated into Windows 10/11, it is not practically possible to completely replace it natively. However, this file explorer serves as an extremely capable alternative power-user tool. With minor adjustments (mostly removing Windows-specific APIs), it could easily be ported to Linux.
+
 
 ## Download Here:
+
 ____
 
 ## Features
 
-- **Fast Architecture:** BRust backend with native-like performance and minimal RAM usage.
-- **Dual-Pane & Tabbed Interface:** Manage files side-by-side with horizontal/vertical split views, or open multiple directories in background tabs.
-- **Integrated Terminal:** Built-in drop-down terminal (PowerShell, CMD, or custom/WSL) that automatically syncs with your current working directory.
-- **Advanced Deep Search:** Quickly search for files by name, or use advanced filters to search by file contents, extension, size, and modification date.
-- **Native Archive Management:** Compress to `.zip` or extract archives directly within the UI without third-party software.
-- **Rich File Previews:** Instantly preview images, PDFs, raw text, and Markdown files right inside the explorer.
+- **Fast Architecture:** Rust backend with native-like performance and minimal RAM usage. Zero-copy asynchronous file loading for massive directories.
+- **Dual-Pane & Tabbed Interface:** Manage files side-by-side with horizontal or vertical split views, or open multiple directories in background tabs.
+- **Integrated Terminal:** Built-in drop-down terminal (`Ctrl + \``) powered by xterm.js. Supports PowerShell, CMD, or custom shells (like WSL). It automatically syncs to your current working directory.
+- **Advanced Deep Search:** Quickly filter for files by name, or use the Command Palette to search by file contents, extension, size, and modification date.
+- **Native Archive Management:** Compress files to `.zip` (with configurable compression levels) or extract archives directly within the UI without third-party software.
+- **Rich File Previews:** Instantly preview images, PDFs, raw text, and Markdown files (rendered securely) right inside the explorer pane.
 - **Quick Access Sidebar:** Pin favorite folders for quick access, alongside automatic detection and mounting of WSL (Linux) distributions.
-- **Command Palette & Custom Hotkeys:** A VS Code-style command palette (`Ctrl+Shift+P` or `>`) and fully customizable keyboard shortcuts for power users.
-- **Modern UI:** Sleek, custom-drawn titlebars, window controls, and right-click context menus with beautiful Acrylic-style blur effects.
-
+- **Command Palette & Custom Hotkeys:** A VS Code-style command palette (`Ctrl+Shift+P` or `>`) for quick actions, jumping to recent folders, and running operations. Almost all hotkeys are completely customizable.
+- **Modern UI:** Custom-drawn titlebars, grid/list toggle modes, auto-calculating folder sizes, and right-click context menus with Acrylic-style blur effects. Supports Light, Dark, and System Auto themes.
 
 ## Configuration
 
-Access the Preferences menu to adjust the application to your liking:
+Access the **Preferences** menu (`⚙ Preferences` or via the Command Palette) to adjust the application to your liking:
 
-- Theme: Force Dark Mode, Light Mode, or respect System Auto.
-- Layout: Switch between vertical and horizontal split panes.
-- Terminal Shell: Choose between PowerShell, Command Prompt, or specify a custom path (e.g., wsl).
-- Thumbnails: Toggle image thumbnails on or off for better performance.
-- Hotkeys: almost all are customizable 
+- **Theme:** Force Dark Mode, Light Mode, or respect System Auto.
+- **Layout:** Switch between vertical and horizontal split panes.
+- **Terminal Shell:** Choose between PowerShell, Command Prompt, or specify a custom path (e.g., `wsl`, `bash`, `wt.exe`).
+- **Thumbnails:** Toggle image thumbnails on or off for better performance.
+- **Hotkeys:** Rebind almost every action (Copy, Paste, New Tab, Open Search, etc.) to your preferred keystrokes.
+- **Hidden Files & Git Badges:** Toggle visibility for hidden items and Git repository status badges.
 
-
-
-
-
-## To build
+## Development & Building
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed on your Windows 11 machine:
+Before you begin, ensure you have the following installed:
 - [Node.js](https://nodejs.org/) (v18 or higher)
-- [Rust](https://www.rust-lang.org/tools/install) (Ensure C++ Build Tools are installed via Visual Studio Installer)
+- [Rust](https://www.rust-lang.org/tools/install) (Ensure C++ Build Tools are installed via the Visual Studio Installer)
 - [Git](https://git-scm.com/)
 
 ### Installation
 
 1. **Clone the repository:**
-2. **Install Dependencies**: npm install
+   ```bash
+   git clone [https://github.com/yourusername/minimal-explorer.git](https://github.com/yourusername/minimal-explorer.git)
+   cd minimal-explorer
+2. **Install Dependencies:** npm install
 3. **Run in dev mode:** npm run tauri dev
