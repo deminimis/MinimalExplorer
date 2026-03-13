@@ -15,7 +15,7 @@ export class SettingsState {
   showPrimaryTerminal = $state(false);
   showSecondaryTerminal = $state(false);
   terminalAutoCd = $state(true);
-  integratedTerminalType = $state<'powershell' | 'cmd' | 'custom'>('powershell');
+  integratedTerminalType = $state<'powershell' | 'cmd' | 'custom'>('cmd');
   recentPaths = $state<string[]>([]);
   externalTerminalType = $state<'powershell' | 'cmd' | 'custom'>('cmd');
   customIntegratedTerminal = $state('wsl');

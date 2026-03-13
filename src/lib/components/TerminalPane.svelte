@@ -30,10 +30,11 @@ onMount(() => {
     term = new XTerm({ fontFamily: 'monospace' });
     fitAddon = new XFitAddon();
     term.loadAddon(fitAddon);
-    term.open(terminalContainer);
-    fitAddon.fit();
+      term.open(terminalContainer);
+      applyTerminalTheme(); 
+      fitAddon.fit();
 
-    const shellCommand = settings.integratedTerminalType === 'custom' ? settings.customIntegratedTerminal : settings.integratedTerminalType;
+      const shellCommand = settings.integratedTerminalType === 'custom' ? settings.customIntegratedTerminal : settings.integratedTerminalType;
     invoke('spawn_pty', { id, rows: term.rows, cols: term.cols, cwd, shell: shellCommand }).then(() => {
       // If unmounted while spawning, immediately kill and abort listener setup
       if (isDestroyed) {
@@ -71,33 +72,36 @@ onMount(() => {
   };
 });
 
+  function applyTerminalTheme() {
+    if (!term) return;
+    const isLight = settings.theme === 'light' || (settings.theme === 'auto' && window.matchMedia('(prefers-color-scheme: light)').matches);
+    term.options.theme = {
+      background: isLight ? '#e9ecef' : '#1e1e1e',
+      foreground: isLight ? '#333333' : '#ffffff',
+      cursor: isLight ? '#333333' : '#ffffff',
+      selectionBackground: isLight ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)',
+      black: '#000000',
+      red: '#cd3131',
+      green: isLight ? '#00bc00' : '#0dbc79',
+      yellow: isLight ? '#949800' : '#e5e510',
+      blue: '#2472c8',
+      magenta: isLight ? '#bc05bc' : '#bc3fbc',
+      cyan: '#11a8cd',
+      white: isLight ? '#555555' : '#e5e5e5',
+      brightBlack: '#666666',
+      brightRed: isLight ? '#cd3131' : '#f14c4c',
+      brightGreen: isLight ? '#14ce14' : '#23d18b',
+      brightYellow: isLight ? '#b5ba00' : '#f5f543',
+      brightBlue: '#3b8eea',
+      brightMagenta: isLight ? '#bc05bc' : '#d670d6',
+      brightCyan: '#29b8db',
+      brightWhite: isLight ? '#a5a5a5' : '#ffffff'
+    };
+  }
+
   $effect(() => {
-    // Dynamically inject colors into the terminal canvas based on the current theme
-    if (term) {
-      const isLight = settings.theme === 'light' || (settings.theme === 'auto' && window.matchMedia('(prefers-color-scheme: light)').matches);
-      term.options.theme = {
-        background: isLight ? '#e9ecef' : '#1e1e1e',
-        foreground: isLight ? '#333333' : '#ffffff',
-        cursor: isLight ? '#333333' : '#ffffff',
-        selectionBackground: isLight ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)',
-        black: '#000000',
-        red: '#cd3131',
-        green: isLight ? '#00bc00' : '#0dbc79',
-        yellow: isLight ? '#949800' : '#e5e510',
-        blue: '#2472c8',
-        magenta: isLight ? '#bc05bc' : '#bc3fbc',
-        cyan: '#11a8cd',
-        white: isLight ? '#555555' : '#e5e5e5',
-        brightBlack: '#666666',
-        brightRed: isLight ? '#cd3131' : '#f14c4c',
-        brightGreen: isLight ? '#14ce14' : '#23d18b',
-        brightYellow: isLight ? '#b5ba00' : '#f5f543',
-        brightBlue: '#3b8eea',
-        brightMagenta: isLight ? '#bc05bc' : '#d670d6',
-        brightCyan: '#29b8db',
-        brightWhite: isLight ? '#a5a5a5' : '#ffffff'
-      };
-    }
+    settings.theme; 
+    applyTerminalTheme();
   });
 
   let terminalHeight = $state(250);

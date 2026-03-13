@@ -163,7 +163,12 @@ export async function submitCreate() {
 
 export async function launchTerminal(admin: boolean) {
   const targetFile = explorer.selectedFiles.length === 1 ? explorer.selectedFiles[0] : null;
-  const targetPath = (targetFile && targetFile.is_dir) ? targetFile.path : explorer.currentPath;
+  let targetPath = (targetFile && targetFile.is_dir) ? targetFile.path : explorer.currentPath;
+  
+  if (targetPath === "This PC" || !targetPath) {
+    targetPath = "C:\\";
+  }
+
   try {
     const shellCommand = settings.externalTerminalType === 'custom' ? settings.customExternalTerminal : settings.externalTerminalType;
     await invoke("open_in_terminal", { path: targetPath, admin, shell: shellCommand });

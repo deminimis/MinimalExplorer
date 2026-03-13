@@ -373,9 +373,11 @@
       {/if}
 
       <FileContainer />
-      {#if settings.showPrimaryTerminal}
-        <TerminalPane id="primary" cwd={explorer.currentPath} />
-      {/if}
+      <div style:display={settings.showPrimaryTerminal ? 'flex' : 'none'} style:flex-direction="column">
+          {#key settings.integratedTerminalType + settings.customIntegratedTerminal}
+            <TerminalPane id="primary" cwd={explorer.currentPath} />
+          {/key}
+        </div>
     </div>
 
     {#if explorer.previewImagePath !== null || explorer.previewTextContent !== null || explorer.previewPdfPath !== null}
@@ -440,9 +442,11 @@
           <p class="error">Error: {explorer.errorMessage}</p>
         {/if}
         <FileContainer isSecondary={true} />
-        {#if settings.showSecondaryTerminal}
-          <TerminalPane id="secondary" cwd={explorer.tabs[explorer.activeTabIndex]?.secondaryPath || "C:\\"} />
-        {/if}
+        <div style:display={settings.showSecondaryTerminal ? 'flex' : 'none'} style:flex-direction="column">
+          {#key settings.integratedTerminalType + settings.customIntegratedTerminal}
+            <TerminalPane id="secondary" cwd={explorer.tabs[explorer.activeTabIndex]?.secondaryPath || "C:\\"} />
+          {/key}
+        </div>
       </div>
     {/if}
   </div>
