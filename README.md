@@ -50,6 +50,16 @@ Because Windows Explorer is deeply integrated into Windows 10/11, it is not prac
       <img src=".github/screenshots/settings.webp" width="400" alt="Settings Menu">
     </td>
   </tr>
+  <tr>
+    <td width="50%" align="center">
+      <b>Integrated Terminal</b><br>
+      <img src=".github/screenshots/picpreview.png" width="400" alt="Terminal Pane">
+    </td>
+    <td width="50%" align="center">
+      <b>Deep Customization</b><br>
+      <img src=".github/screenshots/textpreview.png" width="400" alt="Settings Menu">
+    </td>
+  </tr>
 </table>
 
 <p align="center">
