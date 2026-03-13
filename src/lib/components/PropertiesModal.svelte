@@ -3,8 +3,27 @@
   import { explorer } from '$lib/explorer.svelte';
   import { openWindowsProperties } from '$lib/actions';
   import { formatSize, formatDate, getSystemIconSrc } from '$lib/utils';
+  import { listen } from '@tauri-apps/api/event';
 
   function setupDialog(node: HTMLDialogElement) { if (!node.open) node.showModal(); }
+
+  // Listen for background folder size calculations
+  $effect(() => {
+    let unlistenFn: (() => void) | undefined;
+    
+    if (ui.showPropertiesModal && ui.propertiesData?.is_dir) {
+      listen<{ path: string, size: number }>('folder_size_update', (event) => {
+        if (ui.propertiesData && event.payload.path === ui.propertiesData.path) {
+          ui.propertiesData.size = event.payload.size;
+          ui.propertiesData.size_calculated = true;
+        }
+      }).then(unlisten => { unlistenFn = unlisten; });
+    }
+
+    return () => {
+      if (unlistenFn) unlistenFn();
+    };
+  });
 </script>
 
 {#if ui.showPropertiesModal && ui.propertiesData}
@@ -23,8 +42,10 @@
         <div class="prop-value">{ui.propertiesData.is_dir ? 'File Folder' : 'File'}</div>
 
         <div class="prop-label">Size:</div>
-        <div class="prop-value">{ui.propertiesData.is_dir ? 'Calculating...' : formatSize(ui.propertiesData.size, false)} 
-          <span class="bytes">({ui.propertiesData.size.toLocaleString()} bytes)</span>
+        <div class="prop-value">{(ui.propertiesData.is_dir && !ui.propertiesData.size_calculated) ?
+          'Calculating...' : formatSize(ui.propertiesData.size, false)} 
+          <span class="bytes">({(ui.propertiesData.is_dir && !ui.propertiesData.size_calculated) ? 
+            '...' : ui.propertiesData.size.toLocaleString()} bytes)</span>
         </div>
 
         {#if !ui.propertiesData.is_dir}

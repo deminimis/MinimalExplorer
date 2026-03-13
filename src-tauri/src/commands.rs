@@ -107,7 +107,7 @@ pub struct  FileProperties {
 }
 
 #[tauri::command]
-pub fn get_file_properties(path: String) -> Result<FileProperties, String> {
+pub fn get_file_properties(path: String, app: tauri::AppHandle) -> Result<FileProperties, String> {
     let meta = std::fs::metadata(&path).map_err(|e| e.to_string())?;
     let name = std::path::Path::new(&path).file_name().unwrap_or_default().to_string_lossy().into_owned();
     
@@ -115,9 +115,31 @@ pub fn get_file_properties(path: String) -> Result<FileProperties, String> {
     let modified = meta.modified().ok().and_then(|t| t.duration_since(SystemTime::UNIX_EPOCH).ok()).map(|d| d.as_secs()).unwrap_or(0);
     let readonly = meta.permissions().readonly();
 
-    let mut size = meta.len();
+    // Default size to 0 for directories so the modal opens instantly
+    let size = if meta.is_dir() { 0 } else { meta.len() };
+
     if meta.is_dir() {
-        size = jwalk::WalkDir::new(&path).into_iter().filter_map(|e| e.ok()).map(|e| e.metadata().map(|m| m.len()).unwrap_or(0)).sum();
+        let path_clone = path.clone();
+        let app_clone = app.clone(); 
+        
+        tauri::async_runtime::spawn(async move {
+            let total_size: u64 = jwalk::WalkDir::new(&path_clone)
+                .into_iter()
+                .filter_map(|e| e.ok())
+                .map(|e| e.metadata().map(|m| m.len()).unwrap_or(0))
+                .sum();
+
+            #[derive(Clone, serde::Serialize)]
+            struct FolderSizePayload {
+                path: String,
+                size: u64,
+            }
+
+            let _ = app_clone.emit("folder_size_update", FolderSizePayload {
+                path: path_clone,
+                size: total_size,
+            });
+        });
     }
 
     Ok(FileProperties {
