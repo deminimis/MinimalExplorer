@@ -7,7 +7,6 @@ export class SettingsState {
   // Global Settings
   showHiddenFiles = $state(false);
   showGitBadges = $state(true);
-  showListGridLines = $state(false);
   enableThumbnails = $state(false);
   sessionViewOverrides = new Map<string, 'grid' | 'list'>();
   splitDirection = $state<'vertical' | 'horizontal'>('vertical');
@@ -87,9 +86,6 @@ export class SettingsState {
 
     const savedShowGitBadges = await this.store.get<boolean>("showGitBadges");
     if (savedShowGitBadges !== undefined && savedShowGitBadges !== null) this.showGitBadges = savedShowGitBadges;
-
-    const savedShowListGridLines = await this.store.get<boolean>("showListGridLines");
-    if (savedShowListGridLines !== undefined && savedShowListGridLines !== null) this.showListGridLines = savedShowListGridLines;
 
     const savedThumbnails = await this.store.get<boolean>("enableThumbnails");
     if (savedThumbnails !== undefined && savedThumbnails !== null) this.enableThumbnails = savedThumbnails;
@@ -197,7 +193,6 @@ export class SettingsState {
 
     await this.store.set("showHiddenFiles", this.showHiddenFiles);
     await this.store.set("showGitBadges", this.showGitBadges);
-    await this.store.set("showListGridLines", this.showListGridLines);
     await this.store.set("enableThumbnails", this.enableThumbnails);
     await this.store.set("splitDirection", this.splitDirection);
     await this.store.set("enablePreviewPane", this.enablePreviewPane);

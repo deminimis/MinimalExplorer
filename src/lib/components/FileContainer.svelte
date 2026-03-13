@@ -630,7 +630,7 @@
       <p>{filterQuery ? "No items match your filter" : "This folder is empty"}</p>
     </div>
   {:else if (isSecondary ? settings.secondaryViewMode : settings.primaryViewMode) === 'list'}
-    <table class="list-view-table {settings.showListGridLines ? 'show-lines' : ''} {scrollTop > 0 ? 'is-scrolled' : ''}">
+    <table class="list-view-table {scrollTop > 0 ? 'is-scrolled' : ''}">
       <thead>
         <tr>
           <th style="width: {settings.listColumnWidths.name}px" role="button" tabindex="0" onclick={(e) => { if ((e.target as HTMLElement).classList.contains('col-resizer')) return; import('$lib/actions').then(m => m.setSortMode('name')) }} >
@@ -702,7 +702,7 @@ overflow-y: auto; background: transparent; position: relative; user-select: none
   }
   .list-view-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse; 
     text-align: left;
     font-size: calc(0.9rem * var(--zoom-scale));
     table-layout: fixed;
@@ -750,12 +750,6 @@ overflow-y: auto; background: transparent; position: relative; user-select: none
   .col-resizer:hover, .col-resizer:active {
     background: var(--accent);
     opacity: 0.5;
-  }
-  .list-view-table.show-lines td {
-    border-bottom: 1px solid var(--border-color);
-  }
-  .list-view-table tbody tr:hover {
-    background-color: var(--bg-hover);
   }
   .drag-ghost {
     position: absolute;

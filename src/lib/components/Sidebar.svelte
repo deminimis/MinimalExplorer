@@ -273,42 +273,58 @@ const interval = setInterval(loadDrives, 30000);
 
 <style>
   .sidebar-edge-detector {
-    position: absolute;
+    position: fixed;
     left: 0;
-    top: 0;
+    top: 45px; /* Sit just below the titlebar */
     bottom: 0;
-    width: 16px;
+    width: 40px; /* Span from the absolute screen edge right up to the files */
     z-index: 90;
-    background: rgba(128, 128, 128, 0.05);
-    border-right: 1px solid rgba(128, 128, 128, 0.1);
+    background: transparent;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end; /* Keep the chevron arrow near the content */
+    padding-right: 6px;
     cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .sidebar-edge-detector:hover {
+    background: rgba(128, 128, 128, 0.1);
   }
   .detector-arrow {
-    color: rgba(128, 128, 128, 0.5);
-    font-size: 1.2rem;
+    color: var(--text-main);
+    font-size: 1.5rem;
     user-select: none;
   }
-  .sidebar { background: rgba(0, 0, 0, 0.03);
- border-right: 1px solid rgba(128, 128, 128, 0.3);
- display: flex; flex-shrink: 0; transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1); overflow: hidden;
-transform: translateZ(0); }
+  .sidebar {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-right: 1px solid rgba(128, 128, 128, 0.3);
+  display: flex;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s ease;
+  overflow: hidden;
+  transform: translateZ(0);
+}
 
-.sidebar.is-resizing { will-change: transform; }
+.sidebar.is-resizing {
+  will-change: transform;
+}
 
-  :global([data-theme="dark"]) .sidebar {
-    background: rgba(0, 0, 0, 0.15); 
-  }
-  .sidebar.hover-mode {
+:global([data-theme="dark"]) .sidebar {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.sidebar:hover, .sidebar.hover-mode {
+  background-color: var(--bg-solid) !important;
+}
+
+.sidebar.hover-mode {
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
     z-index: 100;
     transform: translateX(-100%);
-    box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+    box-shadow: 1px 0 8px rgba(0,0,0,0.2);
   }
   .sidebar.hover-mode.visible {
     transform: translateX(0);

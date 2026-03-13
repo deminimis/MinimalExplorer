@@ -75,13 +75,6 @@
 
       <div class="setting-group checkbox-group">
         <label>
-          <input type="checkbox" bind:checked={settings.showListGridLines} onchange={() => settings.saveSettings()} />
-          Show Grid Lines in List View
-        </label>
-      </div>
-
-      <div class="setting-group checkbox-group">
-        <label>
           <input type="checkbox" bind:checked={settings.enableThumbnails} onchange={() => settings.saveSettings()} />
           Show Image Thumbnails (Instead of Icons)
         </label>
