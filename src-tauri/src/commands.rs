@@ -320,16 +320,21 @@ pub fn get_directories(path: String, show_git_badges: bool) -> Result<Vec<FileIt
 }
 
 #[tauri::command]
-pub async fn get_files(pane_id: String, path: String, sort_by: String, sort_ascending: bool, show_git_badges: bool, state: tauri::State<'_, LoadState>) -> Result<(), String> {
+pub async fn get_files(pane_id: String, path: String, _sort_by: String, _sort_ascending: bool, show_git_badges: bool, state: tauri::State<'_, LoadState>) -> Result<(), String> {
     let pane = state.get_pane(&pane_id);
     let token = pane.token.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
-    pane.buffer.lock().unwrap().clear();
 
-    // Intercept virtual "This PC" path 
+    // Intercept virtual "This PC" path
     if path == "This PC" {
         if let Ok(drives) = get_quick_access() {
             let items: Vec<FileItem> = drives.into_iter().map(|d| FileItem {
-                name: d.name, is_dir: true, path: d.path, size: 0, modified: 0, is_hidden: false, snippet: None
+                name: d.name,
+                is_dir: true,
+                path: d.path,
+                size: 0,
+                modified: 0,
+                is_hidden: false,
+                snippet: None
             }).collect();
             if pane.token.load(std::sync::atomic::Ordering::Relaxed) == token {
                 pane.buffer.lock().unwrap().push(encode_files(&items));
@@ -341,8 +346,7 @@ pub async fn get_files(pane_id: String, path: String, sort_by: String, sort_asce
     use std::os::windows::ffi::OsStrExt;
     use windows::core::PCWSTR;
     use windows::Win32::Storage::FileSystem::{
-        FindFirstFileW, FindNextFileW, FindClose, WIN32_FIND_DATAW,
-        FILE_ATTRIBUTE_DIRECTORY, FILE_ATTRIBUTE_HIDDEN
+        FindFirstFileW, FindNextFileW, FindClose, WIN32_FIND_DATAW, FILE_ATTRIBUTE_DIRECTORY, FILE_ATTRIBUTE_HIDDEN
     };
 
     let mut items: Vec<FileItem> = Vec::new();
@@ -351,7 +355,6 @@ pub async fn get_files(pane_id: String, path: String, sort_by: String, sort_asce
         // BYPASS FindFirstFileW for UNC paths (WSL, Network Drives)
         let mut fetch_path = path.clone();
         if !fetch_path.ends_with('\\') { fetch_path.push('\\'); }
-        
         if let Ok(entries) = std::fs::read_dir(&fetch_path) {
             for entry in entries.flatten() {
                 if pane.token.load(std::sync::atomic::Ordering::Relaxed) != token { return Ok(()); }
@@ -360,19 +363,21 @@ pub async fn get_files(pane_id: String, path: String, sort_by: String, sort_asce
                 let mut size = 0;
                 let mut modified = 0;
                 let mut is_hidden = name.starts_with('.');
-                
                 if let Ok(meta) = entry.metadata() {
                     size = meta.len();
                     modified = meta.modified().ok().and_then(|t| t.duration_since(std::time::SystemTime::UNIX_EPOCH).ok()).map(|d| d.as_secs()).unwrap_or(0);
                     is_hidden = is_hidden || (meta.file_attributes() & 2 != 0);
                 }
-                
                 let path_str = format!("{}{}", fetch_path, name);
                 items.push(FileItem { name, is_dir, path: path_str, size, modified, is_hidden, snippet: None });
+                
+                if items.len() >= 250 {
+                    pane.buffer.lock().unwrap().push(encode_files(&items));
+                    items.clear();
+                }
             }
         }
     } else {
-        // USE FindFirstFileW for fast local drive reading
         let search_path = if path.ends_with('\\') || path.ends_with('/') { format!("{}*", path) } else { format!("{}\\*", path) };
         let wide_path: Vec<u16> = std::ffi::OsStr::new(&search_path).encode_wide().chain(std::iter::once(0)).collect();
 
@@ -382,30 +387,41 @@ pub async fn get_files(pane_id: String, path: String, sort_by: String, sort_asce
                 if !handle.is_invalid() {
                     loop {
                         if pane.token.load(std::sync::atomic::Ordering::Relaxed) != token { return Ok(()); }
+
                         let name_len = find_data.cFileName.iter().position(|&c| c == 0).unwrap_or(find_data.cFileName.len());
                         let name_slice = &find_data.cFileName[..name_len];
-
+                        
                         if name_slice != [46] && name_slice != [46, 46] { // Skip "." and ".."
                             let name = String::from_utf16_lossy(name_slice);
+                            
                             let is_dir = (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY.0) != 0;
                             let is_hidden = name.starts_with('.') || (find_data.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN.0) != 0;
+                            
                             let size = ((find_data.nFileSizeHigh as u64) << 32) | (find_data.nFileSizeLow as u64);
+                            
                             let ticks = ((find_data.ftLastWriteTime.dwHighDateTime as u64) << 32) | (find_data.ftLastWriteTime.dwLowDateTime as u64);
                             let modified = if ticks >= 116444736000000000 { (ticks - 116444736000000000) / 10000000 } else { 0 };
-                            let separator = if path.ends_with('\\') || path.ends_with('/') { "" } else { "\\" };
-                            let path_str = format!("{}{}{}", path, separator, name);
+
+                            let path_str = if path.ends_with('\\') || path.ends_with('/') { format!("{}{}", path, name) } else { format!("{}\\{}", path, name) };
 
                             let mut snippet = None;
-                            if is_dir && show_git_badges {
+                            if show_git_badges && is_dir {
                                 let head_path = format!("{}\\{}", path_str, ".git\\HEAD");
                                 if let Ok(head) = std::fs::read_to_string(&head_path) {
                                     if head.starts_with("ref: refs/heads/") {
                                         snippet = Some(head.trim_start_matches("ref: refs/heads/").trim().to_string());
-                                    } else if head.len() >= 7 { snippet = Some(head[0..7].to_string()); }
+                                    } else if head.len() >= 7 {
+                                        snippet = Some(head[0..7].to_string());
+                                    }
                                 }
                             }
 
                             items.push(FileItem { name, is_dir, path: path_str, size, modified, is_hidden, snippet });
+
+                            if items.len() >= 250 {
+                                pane.buffer.lock().unwrap().push(encode_files(&items));
+                                items.clear();
+                            }
                         }
                         if FindNextFileW(handle, &mut find_data).is_err() { break; }
                     }
@@ -415,36 +431,12 @@ pub async fn get_files(pane_id: String, path: String, sort_by: String, sort_asce
         }
     }
 
-    // Sort in Rust before chunking
-    items.sort_unstable_by(|a, b| {
-        if a.is_dir != b.is_dir {
-            return if a.is_dir { std::cmp::Ordering::Less } else { std::cmp::Ordering::Greater };
+    if !items.is_empty() {
+        if pane.token.load(std::sync::atomic::Ordering::Relaxed) == token {
+            pane.buffer.lock().unwrap().push(encode_files(&items));
         }
-        
-        let cmp = match sort_by.as_str() {
-            "date" => a.modified.cmp(&b.modified),
-            "size" => a.size.cmp(&b.size),
-            "type" => {
-                let ext_a = std::path::Path::new(&a.name).extension().unwrap_or_default().to_ascii_lowercase();
-                let ext_b = std::path::Path::new(&b.name).extension().unwrap_or_default().to_ascii_lowercase();
-                if ext_a == ext_b {
-                    a.name.to_lowercase().cmp(&b.name.to_lowercase())
-                } else {
-                    ext_a.cmp(&ext_b)
-                }
-            },
-            _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()), 
-        };
-        
-        if sort_ascending { cmp } else { cmp.reverse() }
-    });
-
-    // Chunk IPC responses
-    for chunk in items.chunks(1000) {
-        if pane.token.load(std::sync::atomic::Ordering::Relaxed) != token { return Ok(()); }
-        pane.buffer.lock().unwrap().push(encode_files(chunk));
     }
-    
+
     Ok(())
 }
 

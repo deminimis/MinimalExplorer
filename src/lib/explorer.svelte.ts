@@ -77,6 +77,9 @@ export class ExplorerState {
   searchResults = $state.raw<FileItem[]>([]);
   isSearching = $state(false);
   
+  isLoadingPrimary = $state(false);
+  isLoadingSecondary = $state(false);
+
   get currentPath() {
     return this.tabs[this.activeTabIndex]?.path ?? "C:\\";
   }

@@ -623,12 +623,19 @@
   {/if}
   
   {#if displayFiles.length === 0}
-    <div class="empty-state">
-      <div class="empty-icon">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+    {#if isSecondary ? explorer.isLoadingSecondary : explorer.isLoadingPrimary}
+      <div class="empty-state">
+        <div class="spinner"></div>
+        <p>Loading...</p>
       </div>
-      <p>{filterQuery ? "No items match your filter" : "This folder is empty"}</p>
-    </div>
+    {:else}
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <p>{filterQuery ? "No items match your filter" : "This folder is empty"}</p>
+      </div>
+    {/if}
   {:else if (isSecondary ? settings.secondaryViewMode : settings.primaryViewMode) === 'list'}
     <table class="list-view-table {scrollTop > 0 ? 'is-scrolled' : ''}">
       <thead>
@@ -791,6 +798,18 @@ overflow-y: auto; background: transparent; position: relative; user-select: none
     color: var(--border-color);
     margin-bottom: 12px;
     opacity: 0.6;
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { 
+    to { transform: rotate(360deg); } 
   }
   .empty-state p {
     margin: 0;

@@ -170,10 +170,14 @@ export async function loadDirectory(path: string, addToHistory: boolean = true, 
   else explorer.filterQuery = "";
   
   const currentToken = isSecondary ? ++secondaryLoadToken : ++primaryLoadToken;
-  
   try {
-    if (isSecondary) explorer.secondaryFiles = [];
-    else explorer.files = [];
+    if (isSecondary) {
+      explorer.secondaryFiles = [];
+      explorer.isLoadingSecondary = true;
+    } else {
+      explorer.files = [];
+      explorer.isLoadingPrimary = true;
+    }
 
     const paneId = isSecondary ? "secondary" : "primary";
     // Stop any in-progress directory loads
@@ -200,8 +204,7 @@ export async function loadDirectory(path: string, addToHistory: boolean = true, 
 
       if (u8.byteLength > 0) {
         const batch = decodeFileItems(u8);
-        allFiles = [...allFiles, ...batch];
-        
+        allFiles = sortFiles([...allFiles, ...batch]);
         if (isSecondary) explorer.secondaryFiles = allFiles;
         else explorer.files = allFiles;
 
@@ -221,12 +224,14 @@ export async function loadDirectory(path: string, addToHistory: boolean = true, 
       }
 
       if (loadPromiseDone && u8.byteLength === 0) break;
-      
       const activeTokenAfter = isSecondary ? secondaryLoadToken : primaryLoadToken;
       if (currentToken !== activeTokenAfter) return; // Stop if user navigated away
 
-      await new Promise(r => setTimeout(r, 16)); 
+      await new Promise(r => setTimeout(r, 16));
     }
+
+    if (isSecondary) explorer.isLoadingSecondary = false;
+    else explorer.isLoadingPrimary = false;
 
     if (isSecondary) {
       if (explorer.tabs[explorer.activeTabIndex]) explorer.tabs[explorer.activeTabIndex].secondaryPath = path;
@@ -272,6 +277,8 @@ export async function loadDirectory(path: string, addToHistory: boolean = true, 
       }, 150); 
     }
   } catch (error) {
+    if (isSecondary) explorer.isLoadingSecondary = false;
+    else explorer.isLoadingPrimary = false;
     console.error("Failed to read directory:", error);
     explorer.errorMessage = String(error);
   }
