@@ -5,9 +5,17 @@ Minimal Explorer is a fast, highly performant Windows Explorer replacement built
 Because Windows Explorer is deeply integrated into Windows 10/11, it is not practically possible to completely replace it natively. However, this file explorer serves as an extremely capable alternative power-user tool. With minor adjustments (mostly removing Windows-specific APIs), it could easily be ported to Linux.
 
 
-## Download Here:
 
-____
+
+
+[![Download Here](https://img.shields.io/badge/DOWNLOAD-HERE-green?style=for-the-badge&logo=github)](https://github.com/deminimis/MinimalExplorer/releases)
+
+
+
+<p align="center">
+  <img src=".github/screenshots/window.webp" width="900" alt="Minimal Explorer Main Window">
+</p>
+
 
 ## Features
 
@@ -20,6 +28,35 @@ ____
 - **Quick Access Sidebar:** Pin favorite folders for quick access, alongside automatic detection and mounting of WSL (Linux) distributions.
 - **Command Palette & Custom Hotkeys:** A VS Code-style command palette (`Ctrl+Shift+P` or `>`) for quick actions, jumping to recent folders, and running operations. Almost all hotkeys are completely customizable.
 - **Modern UI:** Custom-drawn titlebars, grid/list toggle modes, auto-calculating folder sizes, and right-click context menus with Acrylic-style blur effects. Supports Light, Dark, and System Auto themes.
+
+<table align="center">
+  <tr>
+    <td width="50%" align="center">
+      <b>Instant Search</b><br>
+      <img src=".github/screenshots/search.webp" width="400" alt="Search Feature">
+    </td>
+    <td width="50%" align="center">
+      <b>Power User Hotkeys</b><br>
+      <img src=".github/screenshots/hotkeys.webp" width="400" alt="Hotkeys Modal">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <b>Integrated Terminal</b><br>
+      <img src=".github/screenshots/terminal.webp" width="400" alt="Terminal Pane">
+    </td>
+    <td width="50%" align="center">
+      <b>Deep Customization</b><br>
+      <img src=".github/screenshots/settings.webp" width="400" alt="Settings Menu">
+    </td>
+  </tr>
+</table>
+
+<p align="center">
+  <b>Light & Dark Mode Support</b><br>
+  <img src=".github/screenshots/lighttheme.webp" width="800" alt="Light Theme Preview">
+</p>
+
 
 ## Configuration
 
